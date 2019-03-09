@@ -1,43 +1,14 @@
 const inquirer = require('inquirer')
 const chalk = require('chalk')
 const pad = require('pad')
-
+const {
+  eodQuestions,
+  confirmMoreEODDetails,
+  confirmMoreDrawdownsDetails,
+  confirmSendDetailsByEmail
+} = require('../utils/constants')
 const { errorLog, parseFinalOutput, styleOutput } = require('../utils/helpers')
 const { getEOD } = require('../services/quandl')
-
-const questions = [
-  { type: 'input', name: 'stockSymbol', message: 'Enter your stock code' },
-  { type: 'input', name: 'dates', message: 'Enter your preferred date or range of dates' },
-  { type: 'input', name: 'apiKey', message: 'Enter your API KEY' }
-]
-const confirmMoreEODDetails = [
-  {
-    type: 'confirm',
-    name: 'eodPrices',
-    message: 'See more details about EOD prices',
-    default: false
-  }
-]
-const confirmMoreDrawdownsDetails = [
-  {
-    type: 'confirm',
-    name: 'eodPrices',
-    message: 'See more details about EOD prices',
-    default: false
-  }
-]
-const confirmSendDetailsByEmail = [
-  {
-    type: 'confirm',
-    name: 'confirmed',
-    message: 'Send Details to your email?'
-  },
-  {
-    type: 'input',
-    name: 'email',
-    message: 'please enter you email address'
-  }
-]
 
 const printMoreDetails = data => {
   console.log('\n')
@@ -91,7 +62,7 @@ const retrieveData = async answers => {
 }
 
 module.exports = async () => {
-  const eodAnswers = await inquirer.prompt(questions)
+  const eodAnswers = await inquirer.prompt(eodQuestions)
   const eodDetails = await retrieveData(eodAnswers)
   const { closingDetails, drawdownsDetails } = eodDetails
 
