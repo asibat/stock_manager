@@ -7,6 +7,7 @@ const errorLog = error => {
   const eLog = chalk.red(error)
   console.log(eLog)
 }
+const styleOutput = (option, value) => chalk[option](value)
 const usage = () => console.log(examplesText)
 
 const splitRange = val => val.split('..')
@@ -35,7 +36,13 @@ const isValidParams = (stockSymbol, stockDate, apiKey) =>
 const propertyValue = (style, value, type = 'en-IN') => {
   let formatter = new Intl.NumberFormat(type, { style, maximumFractionDigits: 2 }).format(value)
 
-  return value > 0 && style === 'percent' ? `+${formatter}` : formatter
+  if (value > 0 && style === 'percent') {
+    return `${styleOutput('green', `+${formatter}`)}`
+  } else if (value < 0 && style === 'percent') {
+    return styleOutput('red', formatter)
+  } else {
+    return formatter
+  }
 }
 
 const parseFinalOutput = eodDetails => {
@@ -46,17 +53,22 @@ const parseFinalOutput = eodDetails => {
     const { closingDetails, drawdownsDetails } = output
     const { date, low, high, close, drawdown } = stock
 
-    closingDetails.push(`${date}: Closed at ${close} (${low}~${high})`)
+    closingDetails.push(
+      `${styleOutput('blueBright', date)}: ${styleOutput('bold', 'Closed')} at ${styleOutput(
+        'bold',
+        close
+      )} (${low}~${high})`
+    )
     drawdownsDetails.push(`${drawdown} (${high} on ${date} -> ${low} on ${date})`)
   }
 
-  output['maxDrawdown'] = `Maximum drawdown: ${maxDrawdown.drawdown} (${maxDrawdown.close} on ${maxDrawdown.date} -> ${
-    maxDrawdown.low
-  } on ${maxDrawdown.date}`
+  output['maxDrawdown'] = `${styleOutput('blueBright', 'Maximum drawdown')}: ${maxDrawdown.drawdown} (${
+    maxDrawdown.close
+  } on ${maxDrawdown.date} -> ${maxDrawdown.low} on ${maxDrawdown.date})`
 
-  output['stockReturn'] = `Return: ${stockReturn.returnValue} [${stockReturn.returnPercentage}] (${
-    result[result.length - 1].low
-  } on ${result[result.length - 1].date} -> ${result[0].low} on ${result[0].date})`
+  output['stockReturn'] = `${styleOutput('blueBright', 'Return')}: ${styleOutput('bold', stockReturn.returnValue)} [${
+    stockReturn.returnPercentage
+  }] (${result[result.length - 1].low} on ${result[result.length - 1].date} -> ${result[0].low} on ${result[0].date})`
 
   return output
 }
@@ -68,5 +80,6 @@ module.exports = {
   initRequestOptions,
   isValidParams,
   propertyValue,
-  parseFinalOutput
+  parseFinalOutput,
+  styleOutput
 }
