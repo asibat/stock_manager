@@ -57,7 +57,7 @@ const parseFinalOutput = eodDetails => {
       `${styleOutput('blueBright', date)}: ${styleOutput('bold', 'Closed')} at ${styleOutput(
         'bold',
         close
-      )} (${low}~${high})`
+      )} (${low} ~ ${high})`
     )
     drawdownsDetails.push(`${drawdown} (${high} on ${date} -> ${low} on ${date})`)
   }

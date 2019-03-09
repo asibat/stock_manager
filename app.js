@@ -10,16 +10,28 @@ const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 })
+const printData = data => {
+  if (Array.isArray(data)) {
+    data.splice(0, 3)
+  }
+  console.log('\n', data, '\n')
+}
+
 const printOutput = data => {
   const { name, closingDetails, drawdownsDetails, maxDrawdown, stockReturn } = data
 
   console.log('\n')
   console.log(styleOutput('bold', name))
   console.log('\n')
-  closingDetails.reverse().forEach(stock => console.log(stock))
+  console.log(`${styleOutput('blueBright', 'First 3 EOD Details')}: `)
+  closingDetails
+    .reverse()
+    .slice(0, 3)
+    .forEach(stock => console.log(stock))
+
   console.log('\n')
   console.log(`${styleOutput('blueBright', 'First 3 Drawdowns')}: `)
-  drawdownsDetails.splice(0, 3).forEach(drawdown => console.log(drawdown))
+  drawdownsDetails.slice(0, 3).forEach(drawdown => console.log(drawdown))
   console.log('\n')
   console.log(maxDrawdown)
   console.log(stockReturn)
@@ -32,17 +44,18 @@ program
   .description('End of Day US Stock Prices - filter by a single date or a range of dates')
   .action(async (symbol, date, apiKey) => {
     let eodDetails
+
     try {
       eodDetails = await getEOD(symbol, date, apiKey)
     } catch (e) {
       console.log(e)
     }
+
     if (!eodDetails) {
       errorLog('NO AVAILABLE DATA')
       return
     }
-    const finalOutput = parseFinalOutput(eodDetails)
-    printOutput(finalOutput)
+    printOutput(parseFinalOutput(eodDetails))
 
     // TODO: implement send data option (email or slack)
     // rl.question('Send Data? y or N  ', answer => {
