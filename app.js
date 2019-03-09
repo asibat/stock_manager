@@ -11,7 +11,10 @@ const rl = readline.createInterface({
   output: process.stdout
 })
 const printOutput = data => {
-  const { closingDetails, drawdownsDetails, maxDrawdown, stockReturn } = data
+  const { name, closingDetails, drawdownsDetails, maxDrawdown, stockReturn } = data
+
+  console.log('\n')
+  console.log(styleOutput('bold', name))
   console.log('\n')
   closingDetails.reverse().forEach(stock => console.log(stock))
   console.log('\n')
