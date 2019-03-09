@@ -38,11 +38,35 @@ const propertyValue = (style, value, type = 'en-IN') => {
   return value > 0 && style === 'percent' ? `+${formatter}` : formatter
 }
 
+const parseFinalOutput = eodDetails => {
+  const { name, result, maxDrawdown, stockReturn } = eodDetails
+  const output = { name, closingDetails: [], drawdownsDetails: [] }
+
+  for (let stock of result) {
+    const { closingDetails, drawdownsDetails } = output
+    const { date, low, high, close, drawdown } = stock
+
+    closingDetails.push(`${date}: Closed at ${close} (${low}~${high})`)
+    drawdownsDetails.push(`${drawdown} (${high} on ${date} -> ${low} on ${date})`)
+  }
+
+  output['maxDrawdown'] = `Maximum drawdown: ${maxDrawdown.drawdown} (${maxDrawdown.close} on ${maxDrawdown.date} -> ${
+    maxDrawdown.low
+  } on ${maxDrawdown.date}`
+
+  output['stockReturn'] = `Return: ${stockReturn.returnValue} [${stockReturn.returnPercentage}] (${
+    result[result.length - 1].low
+  } on ${result[result.length - 1].date} -> ${result[0].low} on ${result[0].date})`
+
+  return output
+}
+
 module.exports = {
   errorLog,
   usage,
   splitRange,
   initRequestOptions,
   isValidParams,
-  propertyValue
+  propertyValue,
+  parseFinalOutput
 }

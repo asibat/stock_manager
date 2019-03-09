@@ -3,7 +3,7 @@ const program = require('commander')
 const readline = require('readline')
 
 const { getEOD } = require('./services/quandl')
-const { usage, errorLog } = require('./utils/helpers')
+const { usage, errorLog, parseFinalOutput } = require('./utils/helpers')
 
 const args = process.argv
 const rl = readline.createInterface({
@@ -27,15 +27,16 @@ program
       errorLog('NO AVAILABLE DATA')
       return
     }
-    console.log(eodDetails)
-    rl.question('Send Data? y or N  ', answer => {
-      if (answer === 'N') {
-        console.log('Have a nice Day!')
-        rl.close()
-      }
-
-      rl.close()
-    })
+    console.log(parseFinalOutput(eodDetails))
+    // TODO: implement send data option (email or slack)
+    // rl.question('Send Data? y or N  ', answer => {
+    //   if (answer === 'N') {
+    //     console.log('Have a nice Day!')
+    //     rl.close()
+    //   }
+    //
+    //   rl.close()
+    // })
   })
 
 program.on('--help', () => usage())
