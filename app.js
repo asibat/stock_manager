@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 const program = require('commander')
-const readline = require('readline')
 const getEOD = require('./commands/getEOD')
 
 const { usage, errorLog } = require('./utils/helpers')
