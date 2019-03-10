@@ -1,6 +1,8 @@
 const inquirer = require('inquirer')
 const chalk = require('chalk')
 const pad = require('pad')
+const { isUndefined } = require('lodash')
+
 const {
   eodQuestions,
   confirmMoreEODDetails,
@@ -50,6 +52,7 @@ const retrieveData = async answers => {
     eodDetails = await getEOD(stockSymbol, dates, apiKey)
   } catch (e) {
     console.log(e)
+    return
   }
 
   if (!eodDetails) {
@@ -64,6 +67,8 @@ const retrieveData = async answers => {
 module.exports = async () => {
   const eodAnswers = await inquirer.prompt(eodQuestions)
   const eodDetails = await retrieveData(eodAnswers)
+
+  if (!eodDetails || isUndefined(eodDetails)) return
   const { closingDetails, drawdownsDetails } = eodDetails
 
   const moreEODPrices = await inquirer.prompt(confirmMoreEODDetails)
