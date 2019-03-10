@@ -1,0 +1,54 @@
+{
+  "name": "Apple Inc. (AAPL) Stock Prices, Dividends and Splits",
+  "result": [
+    {
+      "date": "2018-01-05",
+      "open": 173.44,
+      "high": 175.37,
+      "low": 173.05,
+      "close": 175,
+      "dividend": 0,
+      "drawdown": -0.013229172606489098
+    },
+    {
+      "date": "2018-01-04",
+      "open": 172.54,
+      "high": 173.47,
+      "low": 172.08,
+      "close": 173.03,
+      "dividend": 0,
+      "drawdown": -0.008012912895601467
+    },
+    {
+      "date": "2018-01-03",
+      "open": 172.53,
+      "high": 174.55,
+      "low": 171.96,
+      "close": 172.23,
+      "dividend": 0,
+      "drawdown": -0.014838155256373551
+    },
+    {
+      "date": "2018-01-02",
+      "open": 170.16,
+      "high": 172.3,
+      "low": 169.26,
+      "close": 172.26,
+      "dividend": 0,
+      "drawdown": -0.017643644805571793
+    }
+  ],
+  "maxDrawdown": {
+    "date": "2018-01-04",
+    "open": 172.54,
+    "high": 173.47,
+    "low": 172.08,
+    "close": 173.03,
+    "dividend": 0,
+    "drawdown": -0.008012912895601467
+  },
+  "stockReturn": {
+    "returnValue": 2.740000000000009,
+    "returnPercentage": 0.015906188319981477
+  }
+}
