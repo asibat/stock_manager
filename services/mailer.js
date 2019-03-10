@@ -4,7 +4,7 @@ const nodemailerSendgrid = require('nodemailer-sendgrid')
 const { errorLog } = require('../utils/helpers')
 
 const options = {
-  apiKey: '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'
+  apiKey: 'xxxxxxxxxx'
 }
 
 module.exports = class Mailer {
