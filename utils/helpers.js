@@ -3,11 +3,16 @@ const { isUndefined } = require('lodash')
 
 const { examplesText, quandlBaseUrl } = require('./constants')
 
-const errorLog = error => {
-  const eLog = chalk.red(error)
-  console.log(eLog)
+const errorLog = errors => {
+  if (Array.isArray(errors)) {
+    errors.forEach(error => console.log(chalk.red(error)))
+  } else {
+    console.log(chalk.red(errors))
+  }
 }
+
 const styleOutput = (option, value) => chalk[option](value)
+
 const usage = () => console.log(examplesText)
 
 const splitRange = val => val.split('..')
@@ -34,15 +39,23 @@ const initRequestOptions = (params, method = 'GET') => {
 const isValidParams = (stockSymbol, stockDate, apiKey) =>
   !isUndefined(stockSymbol) || !isUndefined(stockDate) || !isUndefined(apiKey)
 
-const propertyValue = (style, value, type = 'en-IN') => {
+const propertyValue = (style, value, type = 'en-IN', outputType = 'cli') => {
   let formatter = new Intl.NumberFormat(type, { style, maximumFractionDigits: 2 }).format(value)
 
-  if (value > 0 && style === 'percent') {
-    return `${styleOutput('green', `+${formatter}`)}`
-  } else if (value < 0 && style === 'percent') {
-    return styleOutput('red', formatter)
+  if (outputType === 'email') {
+    if (value > 0 && style === 'percent') {
+      return `+${formatter}`
+    } else {
+      return formatter
+    }
   } else {
-    return formatter
+    if (value > 0 && style === 'percent') {
+      return `${styleOutput('green', `+${formatter}`)}`
+    } else if (value < 0 && style === 'percent') {
+      return styleOutput('red', formatter)
+    } else {
+      return formatter
+    }
   }
 }
 
@@ -60,16 +73,48 @@ const parseFinalOutput = eodDetails => {
         close
       )} (${low} ~ ${high})`
     )
-    drawdownsDetails.push(`${drawdown} (${high} on ${date} -> ${low} on ${date})`)
+    drawdownsDetails.push(`${propertyValue('percent', drawdown)} (${high} on ${date} -> ${low} on ${date})`)
   }
 
-  output['maxDrawdown'] = `${styleOutput('blueBright', 'Maximum drawdown')}: ${maxDrawdown.drawdown} (${
+  output['maxDrawdown'] = `${styleOutput('blueBright', 'Maximum drawdown')}: ${propertyValue(
+    'percent',
+    maxDrawdown.drawdown
+  )} (${maxDrawdown.close} on ${maxDrawdown.date} -> ${maxDrawdown.low} on ${maxDrawdown.date})`
+
+  output['stockReturn'] = `${styleOutput('blueBright', 'Return')}: ${styleOutput(
+    'bold',
+    propertyValue('decimal', stockReturn.returnValue)
+  )} [${propertyValue('percent', stockReturn.returnPercentage)}] (${result[result.length - 1].low} on ${
+    result[result.length - 1].date
+  } -> ${result[0].low} on ${result[0].date})`
+
+  return output
+}
+
+const parseFinalOutEmail = eodDetails => {
+  const { name, result, maxDrawdown, stockReturn, dates } = eodDetails
+  const output = { name, dates, closingDetails: [], drawdownsDetails: [] }
+
+  for (let stock of result) {
+    const { closingDetails, drawdownsDetails } = output
+    const { date, low, high, close, drawdown } = stock
+
+    closingDetails.push({ item: `${date}: ${'Closed'} at ${close} (${low} ~ ${high})` })
+    drawdownsDetails.push({
+      item: `${propertyValue('percent', drawdown, undefined, 'email')} (${high} on ${date} -> ${low} on ${date})`
+    })
+  }
+
+  output['maxDrawdown'] = `${propertyValue('percent', maxDrawdown.drawdown, undefined, 'email')} (${
     maxDrawdown.close
   } on ${maxDrawdown.date} -> ${maxDrawdown.low} on ${maxDrawdown.date})`
 
-  output['stockReturn'] = `${styleOutput('blueBright', 'Return')}: ${styleOutput('bold', stockReturn.returnValue)} [${
-    stockReturn.returnPercentage
-  }] (${result[result.length - 1].low} on ${result[result.length - 1].date} -> ${result[0].low} on ${result[0].date})`
+  output['stockReturn'] = `${propertyValue('decimal', stockReturn.returnValue, undefined, 'email')} [${propertyValue(
+    'percent',
+    stockReturn.returnPercentage,
+    undefined,
+    'email'
+  )}] (${result[result.length - 1].low} on ${result[result.length - 1].date} -> ${result[0].low} on ${result[0].date})`
 
   return output
 }
@@ -82,5 +127,6 @@ module.exports = {
   isValidParams,
   propertyValue,
   parseFinalOutput,
-  styleOutput
+  styleOutput,
+  parseFinalOutEmail
 }

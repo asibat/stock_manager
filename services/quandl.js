@@ -54,7 +54,7 @@ const calculateDrawdowns = stockDetails => {
     const { low, high } = stock
     let drawdown = (low - high) / high
 
-    stock['drawdown'] = propertyValue('percent', drawdown)
+    stock['drawdown'] = drawdown
   }
   return stockDetails
 }
@@ -65,8 +65,8 @@ const calculateReturn = stocks => {
   const firstDayValue = stocks[stocks.length - 1].close
   const lastDayValue = stocks[0].close
 
-  const returnValue = propertyValue('decimal', lastDayValue - firstDayValue)
-  const returnPercentage = propertyValue('percent', returnValue / firstDayValue)
+  const returnValue = lastDayValue - firstDayValue
+  const returnPercentage = returnValue / firstDayValue
 
   return { returnValue, returnPercentage }
 }

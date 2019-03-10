@@ -38,7 +38,9 @@ const confirmSendDetailsByEmail = [
     type: 'confirm',
     name: 'confirmed',
     message: 'Send Details to your email? '
-  },
+  }
+]
+const confirmEmailAddress = [
   {
     type: 'input',
     name: 'email',
@@ -53,5 +55,6 @@ module.exports = {
   eodQuestions,
   confirmMoreEODDetails,
   confirmMoreDrawdownsDetails,
-  confirmSendDetailsByEmail
+  confirmSendDetailsByEmail,
+  confirmEmailAddress
 }

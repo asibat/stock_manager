@@ -1,15 +1,17 @@
 const inquirer = require('inquirer')
 const chalk = require('chalk')
 const pad = require('pad')
-const { isUndefined } = require('lodash')
+const { isUndefined, isEmpty } = require('lodash')
 
+const Mailer = require('../services/mailer')
 const {
   eodQuestions,
   confirmMoreEODDetails,
   confirmMoreDrawdownsDetails,
-  confirmSendDetailsByEmail
+  confirmSendDetailsByEmail,
+  confirmEmailAddress
 } = require('../utils/constants')
-const { errorLog, parseFinalOutput, styleOutput } = require('../utils/helpers')
+const { errorLog, parseFinalOutput, styleOutput, parseFinalOutEmail } = require('../utils/helpers')
 const { getEOD } = require('../services/quandl')
 
 const printMoreDetails = data => {
@@ -17,6 +19,7 @@ const printMoreDetails = data => {
   data.reverse().forEach(stock => console.log(stock))
   console.log('\n')
 }
+
 const printOutput = data => {
   const { name, closingDetails, drawdownsDetails, maxDrawdown, stockReturn } = data
 
@@ -37,8 +40,8 @@ const printOutput = data => {
   console.log(stockReturn)
   console.log('\n')
 }
+
 const retrieveData = async answers => {
-  let eodDetails
   const { stockSymbol, dates, apiKey } = answers
 
   console.log('Your request')
@@ -48,28 +51,26 @@ const retrieveData = async answers => {
   console.log(pad(chalk.grey('Date: ')), dates)
   console.log(pad(chalk.grey('API KEY: ')), '****************')
 
-  try {
-    eodDetails = await getEOD(stockSymbol, dates, apiKey)
-  } catch (e) {
-    console.log(e)
-    return
-  }
+  const eodDetails = await getEOD(stockSymbol, dates, apiKey)
 
-  if (!eodDetails) {
+  if (!eodDetails || isEmpty(eodDetails) || isUndefined(eodDetails)) {
     errorLog('NO AVAILABLE DATA')
     return
   }
-  const finalOutput = parseFinalOutput(eodDetails)
-  printOutput(finalOutput)
-  return finalOutput
+
+  return eodDetails
 }
 
-module.exports = async () => {
+const getStockDetails = async () => {
   const eodAnswers = await inquirer.prompt(eodQuestions)
   const eodDetails = await retrieveData(eodAnswers)
 
-  if (!eodDetails || isUndefined(eodDetails)) return
-  const { closingDetails, drawdownsDetails } = eodDetails
+  if (!eodDetails || isUndefined(eodDetails) || isEmpty(eodDetails)) return
+
+  const finalOutput = parseFinalOutput(eodDetails)
+  printOutput(finalOutput)
+
+  const { closingDetails, drawdownsDetails } = finalOutput
 
   const moreEODPrices = await inquirer.prompt(confirmMoreEODDetails)
   if (moreEODPrices) printMoreDetails(closingDetails)
@@ -77,6 +78,48 @@ module.exports = async () => {
   const moreDrawdowns = await inquirer.prompt(confirmMoreDrawdownsDetails)
   if (moreDrawdowns) printMoreDetails(drawdownsDetails)
 
-  const sendDetails = await inquirer.prompt(confirmSendDetailsByEmail)
-  if (sendDetails.confirmed) console.log(sendDetails)
+  eodDetails['dates'] = eodAnswers.dates
+  await triggerSendEmail(parseFinalOutput(eodDetails))
 }
+
+const getMe = async () => {
+  const eodAnswers = { stockSymbol: 'AAPL', dates: '2018-01-02..2018-01-05', apiKey: 'BnLaVTAsS7UNuD43xycq' }
+  const email = 'amir.sibat@gmail.com'
+
+  const output = await retrieveData(eodAnswers)
+
+  const finalOutput = parseFinalOutput(output)
+  output['dates'] = eodAnswers.dates
+  const parsedForEmailNotification = parseFinalOutEmail(output)
+  console.log(parsedForEmailNotification)
+  // printOutput(finalOutput)
+
+  const mailer = new Mailer()
+  await mailer.sendMail(email, parsedForEmailNotification)
+}
+
+const triggerSendEmail = async eodDetails => {
+  let sent = false
+  let confirmSendEmail = await inquirer.prompt(confirmSendDetailsByEmail)
+
+  if (confirmSendEmail.confirmed) {
+    let confirmEmailAddressAnswer = await inquirer.prompt(confirmEmailAddress)
+
+    if (confirmEmailAddressAnswer.hasOwnProperty('email')) {
+      while (!sent) {
+        const mailer = new Mailer()
+
+        while (!sent) {
+          sent = await mailer.sendMail(confirmEmailAddress.email, eodDetails)
+
+          if (!sent) {
+            console.log(styleOutput('bold', 'PLEASE TRY AGAIN: (ctrl+c to cancel task) '))
+            confirmEmailAddressAnswer = await inquirer.prompt(confirmEmailAddress)
+          }
+        }
+      }
+    }
+  }
+}
+
+module.exports = { getStockDetails, getMe }
