@@ -19,8 +19,8 @@ const getEOD = async (stockSymbol, stockDate, apiKey) => {
     response = await rp(options)
   } catch (e) {
     const { quandl_error } = e.error
-    errorLog(quandl_error.message)
-    return
+
+    throw quandl_error.message
   }
   if (!response || isEmpty(response)) return
 

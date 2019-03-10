@@ -18,7 +18,7 @@ const eodQuestions = [
 const confirmMoreEODDetails = [
   {
     type: 'confirm',
-    name: 'eodPrices',
+    name: 'confirmed',
     message: 'See more details about EOD prices? ',
     default: false
   }
@@ -27,7 +27,7 @@ const confirmMoreEODDetails = [
 const confirmMoreDrawdownsDetails = [
   {
     type: 'confirm',
-    name: 'eodPrices',
+    name: 'confirmed',
     message: 'See more details about Drawdowns? ',
     default: false
   }

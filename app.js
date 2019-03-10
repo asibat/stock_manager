@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const program = require('commander')
-const getEOD = require('./commands/getEOD')
+const { getStockDetails } = require('./commands/getEOD')
 
 const { usage, errorLog } = require('./utils/helpers')
 
@@ -11,9 +11,7 @@ program
   .command('getEOD')
   .alias('get')
   .description('Retrieve your stock details')
-  .action(function() {
-    getEOD()
-  })
+  .action(async () => await getStockDetails())
 
 program.on('--help', () => usage())
 

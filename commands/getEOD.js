@@ -51,7 +51,14 @@ const retrieveData = async answers => {
   console.log(pad(chalk.grey('Date: ')), dates)
   console.log(pad(chalk.grey('API KEY: ')), '****************')
 
-  const eodDetails = await getEOD(stockSymbol, dates, apiKey)
+  let eodDetails
+
+  try {
+    eodDetails = await getEOD(stockSymbol, dates, apiKey)
+  } catch (e) {
+    errorLog(e)
+    return
+  }
 
   if (!eodDetails || isEmpty(eodDetails) || isUndefined(eodDetails)) {
     errorLog('NO AVAILABLE DATA')
@@ -63,7 +70,14 @@ const retrieveData = async answers => {
 
 const getStockDetails = async () => {
   const eodAnswers = await inquirer.prompt(eodQuestions)
-  const eodDetails = await retrieveData(eodAnswers)
+  let eodDetails
+
+  try {
+    eodDetails = await retrieveData(eodAnswers)
+  } catch (e) {
+    errorLog(e)
+    return
+  }
 
   if (!eodDetails || isUndefined(eodDetails) || isEmpty(eodDetails)) return
 
@@ -73,29 +87,13 @@ const getStockDetails = async () => {
   const { closingDetails, drawdownsDetails } = finalOutput
 
   const moreEODPrices = await inquirer.prompt(confirmMoreEODDetails)
-  if (moreEODPrices) printMoreDetails(closingDetails)
+  if (moreEODPrices.confirmed) printMoreDetails(closingDetails)
 
   const moreDrawdowns = await inquirer.prompt(confirmMoreDrawdownsDetails)
-  if (moreDrawdowns) printMoreDetails(drawdownsDetails)
+  if (moreDrawdowns.confirmed) printMoreDetails(drawdownsDetails)
 
   eodDetails['dates'] = eodAnswers.dates
-  await triggerSendEmail(parseFinalOutput(eodDetails))
-}
-
-const getMe = async () => {
-  const eodAnswers = { stockSymbol: 'AAPL', dates: '2018-01-02..2018-01-05', apiKey: 'BnLaVTAsS7UNuD43xycq' }
-  const email = 'amir.sibat@gmail.com'
-
-  const output = await retrieveData(eodAnswers)
-
-  const finalOutput = parseFinalOutput(output)
-  output['dates'] = eodAnswers.dates
-  const parsedForEmailNotification = parseFinalOutEmail(output)
-  console.log(parsedForEmailNotification)
-  // printOutput(finalOutput)
-
-  const mailer = new Mailer()
-  await mailer.sendMail(email, parsedForEmailNotification)
+  await triggerSendEmail(parseFinalOutEmail(eodDetails))
 }
 
 const triggerSendEmail = async eodDetails => {
@@ -108,18 +106,15 @@ const triggerSendEmail = async eodDetails => {
     if (confirmEmailAddressAnswer.hasOwnProperty('email')) {
       while (!sent) {
         const mailer = new Mailer()
+        sent = await mailer.sendMail(confirmEmailAddressAnswer.email, eodDetails)
 
-        while (!sent) {
-          sent = await mailer.sendMail(confirmEmailAddress.email, eodDetails)
-
-          if (!sent) {
-            console.log(styleOutput('bold', 'PLEASE TRY AGAIN: (ctrl+c to cancel task) '))
-            confirmEmailAddressAnswer = await inquirer.prompt(confirmEmailAddress)
-          }
+        if (!sent) {
+          console.log(styleOutput('bold', 'PLEASE TRY AGAIN: (ctrl+c to cancel task) '))
+          confirmEmailAddressAnswer = await inquirer.prompt(confirmEmailAddress)
         }
       }
     }
   }
 }
 
-module.exports = { getStockDetails, getMe }
+module.exports = { getStockDetails }
