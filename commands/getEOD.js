@@ -44,7 +44,7 @@ const retrieveData = async answers => {
 
   console.log(pad(chalk.grey('Stock Symbol: ')), stockSymbol)
   console.log(pad(chalk.grey('Date: ')), dates)
-  console.log(pad(chalk.grey('API KEY: ')), apiKey)
+  console.log(pad(chalk.grey('API KEY: ')), '****************')
 
   try {
     eodDetails = await getEOD(stockSymbol, dates, apiKey)

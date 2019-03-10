@@ -2,7 +2,7 @@ const examplesText = `
   Examples:
     $ stock --help
     $ stock getEOD AAPL 2018-03-01..2018-03-05 XXXXX
-    $ stock eod AAPL 2018-03-01 XXXXX
+    $ stock get AAPL 2018-03-01 XXXXX
   `
 
 const columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Dividend']
@@ -12,34 +12,37 @@ const quandlBaseUrl = 'https://www.quandl.com/api/v3/datasets/EOD'
 const eodQuestions = [
   { type: 'input', name: 'stockSymbol', message: 'Enter your stock code' },
   { type: 'input', name: 'dates', message: 'Enter your preferred date or range of dates' },
-  { type: 'input', name: 'apiKey', message: 'Enter your API KEY' }
+  { type: 'password', name: 'apiKey', message: 'Enter your API KEY', mask: '*' }
 ]
+
 const confirmMoreEODDetails = [
   {
     type: 'confirm',
     name: 'eodPrices',
-    message: 'See more details about EOD prices',
+    message: 'See more details about EOD prices? ',
     default: false
   }
 ]
+
 const confirmMoreDrawdownsDetails = [
   {
     type: 'confirm',
     name: 'eodPrices',
-    message: 'See more details about EOD prices',
+    message: 'See more details about Drawdowns? ',
     default: false
   }
 ]
+
 const confirmSendDetailsByEmail = [
   {
     type: 'confirm',
     name: 'confirmed',
-    message: 'Send Details to your email?'
+    message: 'Send Details to your email? '
   },
   {
     type: 'input',
     name: 'email',
-    message: 'please enter you email address'
+    message: 'please enter you email address: '
   }
 ]
 

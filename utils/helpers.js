@@ -30,6 +30,7 @@ const initRequestOptions = (params, method = 'GET') => {
 
   return options
 }
+
 const isValidParams = (stockSymbol, stockDate, apiKey) =>
   !isUndefined(stockSymbol) || !isUndefined(stockDate) || !isUndefined(apiKey)
 
