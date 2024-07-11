@@ -21,7 +21,7 @@
   "homepage": "https://github.com/asibat/stock_manager#readme",
   "dependencies": {
     "chalk": "^2.4.2",
-    "commander": "^2.19.0",
+    "commander": "^2.20.3",
     "inquirer": "^6.2.2",
     "intl": "^1.2.5",
     "lodash": "^4.17.13",
